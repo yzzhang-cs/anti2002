@@ -157,8 +157,7 @@ def main(username, password):
             logging.info('waiting message found, in waitlist')
             wait()
         short_delay()
-    sprint = None
-    while not sprint:
+    while True:
         boot_game()
         login(username, password)
         if not start_game():
