@@ -23,6 +23,7 @@ image_start = './images/game_start.png'
 image_response = './images/response.png'
 
 random_keys = ['w', 'a', 's', 'd', 'space']
+max_seconds = 60
 small_delay = 1
 delay = 5
 n_tries = 5
@@ -131,9 +132,10 @@ def hold():
         logging.info('in game, holding')
         disconnected = gui.locateOnScreen(image_2002)
         key = random_keys[random.randint(0, len(random_keys) - 1)]
+        wait_time = random.randint(0, max_seconds)
         gui.press(key)
-        print('holding... pressing key: ' + key)
-        long_delay()
+        print('holding... pressing key: ' + key + ' and wait ' + wait_time + ' seconds')
+        time.sleep(wait_time)
     logging.info('2002')
     gui.press('num0')
     short_delay()
