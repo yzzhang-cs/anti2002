@@ -134,7 +134,7 @@ def hold():
         key = random_keys[random.randint(0, len(random_keys) - 1)]
         wait_time = random.randint(0, max_seconds)
         gui.press(key)
-        print('holding... pressing key: ' + key + ' and wait ' + wait_time + ' seconds')
+        print('holding... pressing key: ' + key + ' and wait ' + str(wait_time) + ' seconds')
         time.sleep(wait_time)
     logging.info('2002')
     gui.press('num0')
