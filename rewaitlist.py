@@ -115,7 +115,7 @@ def wait():
     while not disconnected and not sprint:
         logging.info('in waitlist, waiting')
         disconnected = gui.locateCenterOnScreen(image_2002)
-        sprint = gui.locateCenterOnScreen(image_sprint, greyscale=True, confidence=0.9)
+        sprint = gui.locateCenterOnScreen(image_sprint, grayscale=True, confidence=0.9)
         long_delay()
     if sprint:
         logging.info('in game')
