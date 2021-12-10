@@ -35,7 +35,9 @@ def short_delay():
 def long_delay():
     time.sleep(delay)
 
-
+# Find the game icon on Desktop and double click
+# return:
+#   True if success
 def boot_game():
     logging.info('booting game')
     # double click icon
@@ -48,12 +50,18 @@ def boot_game():
     gui.doubleClick(icon_loc)
     return True
 
+# Find the password box on the screen and enter password
+# params:
+#   username: currently useless. It is supposed to be entered into the login box
+#   password: password to be entered
+# return:
+#   True if success
 def login(username, password):
     logging.info('logging in')
     password_box = None
     while not password_box:
         logging.info('looking for password box')
-        password_box = gui.locateCenterOnScreen(image_password_box)
+        password_box = gui.locateCenterOnScreen(image_password_box, confidence=0.9)
         short_delay()
     logging.info('password box found, entering password')
     gui.leftClick(password_box)
@@ -78,6 +86,9 @@ def login(username, password):
 
     return True
 
+# Start the game by finding and hitting num0 on "GAME START"
+# return:
+#   True if success, False if failed(2002)
 def start_game():
     start = None
     while not start:
@@ -109,6 +120,9 @@ def start_game():
         gui.press('num0')
         return False
 
+# Wait in waitlist
+# return:
+#   True if already in the game, False if failed(2002)
 def wait():
     disconnected = None
     sprint = None
@@ -127,6 +141,9 @@ def wait():
         gui.press('num0')
         return False
 
+# Press a random key in randomly choosen time period, to prevent being kicked by the server.
+# return:
+#   False if 2002 or 90002
 def hold():
     disconnected = None
     while not disconnected:
