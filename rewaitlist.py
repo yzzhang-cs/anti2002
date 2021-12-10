@@ -21,9 +21,10 @@ image_icon = './images/ffxiv_icon.png'
 image_sprint = './images/sprint.png'
 image_start = './images/game_start.png'
 image_response = './images/response.png'
+image_90002 = './images/90002.png'
 
 random_keys = ['w', 'a', 's', 'd', 'space']
-max_seconds = 60
+max_seconds = 60 * 10
 small_delay = 1
 delay = 5
 n_tries = 5
@@ -41,7 +42,7 @@ def boot_game():
     icon_loc = None
     while not icon_loc:
         logging.info('looking for game icon')
-        icon_loc = gui.locateCenterOnScreen(image_icon)
+        icon_loc = gui.locateCenterOnScreen(image_icon, confidence=0.9)
         short_delay()
     logging.info('game icon found, starting game')
     gui.doubleClick(icon_loc)
@@ -93,7 +94,7 @@ def start_game():
     while not response and not disconnected:
         logging.info('looking for response')
         disconnected = gui.locateCenterOnScreen(image_2002)
-        response = gui.locateCenterOnScreen(image_response)
+        response = gui.locateCenterOnScreen(image_response, confidence=0.9)
         short_delay()
     if response:
         logging.info('response found, entering game')
@@ -131,12 +132,16 @@ def hold():
     while not disconnected:
         logging.info('in game, holding')
         disconnected = gui.locateOnScreen(image_2002)
+        if not disconnected:
+            disconnected = gui.locateOnScreen(image_90002)
         key = random_keys[random.randint(0, len(random_keys) - 1)]
         wait_time = random.randint(0, max_seconds)
-        gui.press(key)
+        gui.keyDown(key)
+        time.sleep(0.3)
+        gui.keyUp(key)
         print('holding... pressing key: ' + key + ' and wait ' + str(wait_time) + ' seconds')
         time.sleep(wait_time)
-    logging.info('2002')
+    logging.info('2002 or 90002')
     gui.press('num0')
     short_delay()
     gui.press('num0')
@@ -164,7 +169,8 @@ def main(username, password):
             continue
         if not wait():
             continue
-        hold()
+        if not hold():
+            gui.hotkey('win', 'd')
 
         
     
