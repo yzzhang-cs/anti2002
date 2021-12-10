@@ -12,6 +12,8 @@ import time
 # for logging
 import logging
 
+from pyscreeze import locateOnScreen
+
 image_waiting = './images/waiting.png'
 image_2002 = './images/2002.png'
 image_login_button = './images/login_button.png'
@@ -22,6 +24,7 @@ image_sprint = './images/sprint.png'
 image_start = './images/game_start.png'
 image_response = './images/response.png'
 image_90002 = './images/90002.png'
+image_3001 = './images/3001.png'
 
 random_keys = ['w', 'a', 's', 'd', 'space']
 max_seconds = 60 * 10
@@ -90,35 +93,52 @@ def login(username, password):
 # return:
 #   True if success, False if failed(2002)
 def start_game():
-    start = None
-    while not start:
-        logging.info('looking for game start')
-        start = gui.locateCenterOnScreen(image_start)
-        short_delay()
-    logging.info('game start button found, click')
-    gui.moveTo(start)
-    gui.press('num0')
-    short_delay()
-    gui.press('num0')
-    response = None
-    disconnected = None
-    while not response and not disconnected:
-        logging.info('looking for response')
-        disconnected = gui.locateCenterOnScreen(image_2002)
-        response = gui.locateCenterOnScreen(image_response, confidence=0.9)
-        short_delay()
-    if response:
-        logging.info('response found, entering game')
+    while True:
+        start = None
+        while not start:
+            gui.moveTo(100, 100)
+            logging.info('looking for game start')
+            start = gui.locateCenterOnScreen(image_start)
+            short_delay()
+        logging.info('game start button found, click')
+        gui.moveTo(start)
         gui.press('num0')
         short_delay()
         gui.press('num0')
-        return True
-    if disconnected:
-        logging.info('2002')
-        gui.press('num0')
-        short_delay()
-        gui.press('num0')
-        return False
+        response = None
+        disconnected = None
+        while not response and not disconnected:
+            logging.info('looking for response')
+            disconnected = gui.locateCenterOnScreen(image_2002)
+            response = gui.locateCenterOnScreen(image_response, confidence=0.9)
+            short_delay()
+        if response:
+            logging.info('response found, entering game')
+            gui.press('num0')
+            short_delay()
+            gui.press('num0')
+            short_delay()
+            e3001 = gui.locateOnScreen(image_3001, confidence=0.9)
+            waiting = gui.locateOnScreen(image_waiting, confidence=0.9)
+            if e3001:
+                logging.info('error 3001 detected, going back to title')
+                gui.press('num0')
+                continue
+            while not waiting:
+                logging.info('not in waitlist, retry')
+                gui.press('num0')
+                short_delay()
+                gui.press('num0')
+                short_delay()
+                waiting = gui.locateOnScreen(image_waiting, confidence=0.9)
+            else:
+                return True
+        if disconnected:
+            logging.info('2002')
+            gui.press('num0')
+            short_delay()
+            gui.press('num0')
+            return False
 
 # Wait in waitlist
 # return:
@@ -172,16 +192,22 @@ def main(username, password):
         logging.info('trying to find out current status...')
         sprint = gui.locateCenterOnScreen(image_sprint)
         waiting = gui.locateCenterOnScreen(image_waiting)
+        title = gui.locateCenterOnScreen(image_start, confidence=0.9)
         if sprint:
             logging.info('sprint icon found, in game')
             hold()
         elif waiting:
             logging.info('waiting message found, in waitlist')
             wait()
+        elif title:
+            logging.info('START GAME found, in title')
+            break
         short_delay()
     while True:
-        boot_game()
-        login(username, password)
+        if not title:
+            boot_game()
+            login(username, password)
+            title = None
         if not start_game():
             continue
         if not wait():
